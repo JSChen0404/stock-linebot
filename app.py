@@ -22,11 +22,30 @@ handler = WebhookHandler('3bd50273d59d1f70bb71b314dec4c111')
 line_bot_api.push_message(
     'U9033841fbbfe66347373576c24ca6e8a', TextSendMessage(text='你可以開始了'))
 
+# 監聽所有來自 /callback 的 Post Request
 
-# Webhook settings最後設定!!!!!!!!!!!!!!!!!!
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    # get X-Line-Signature header value
+    signature = request.headers['X-Line-Signature']
+
+    # get request body as text
+    body = request.get_data(as_text=True)
+    app.logger.info("Request body: " + body)
+
+    # handle webhook body
+    try:
+        handler.handle(body, signature)
+    except InvalidSignatureError:
+        abort(400)
+
+    return 'OK'
 
 # 訊息傳遞區塊
 ##### 基本上程式編輯都在這個function #####
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     message = TextSendMessage(text=event.message.text)
