@@ -35,13 +35,96 @@ def callback():
 # 訊息傳遞區塊
 ##### 基本上程式編輯都在這個function #####
 
-
+import re
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-  message = TextSendMessage(text=event.message.text)
+  # message = TextSendMessage(text=event.message.text)
   #line_bot_api.reply_message(event.reply_token, message)
-  if re.match("你是誰", message):
-    line_bot_api.reply_message(event.reply_token, TextSendMessage("才不告訴你勒~~"))
+  message = event.message.text
+  if re.match("早安", message):
+    line_bot_api.reply_message(event.reply_token, TextSendMessage("早安~喵喵~"))
+  elif re.match("你是誰",message):
+    sticker_message = StickerSendMessage(
+      package_id='1070',
+      sticker_id='17878'
+    )
+    line_bot_api.reply_message(event.reply_token, sticker_message)
+  elif re.match("新竹要去哪",message):
+    location_message = LocationSendMessage( 
+      title= "Big City遠東巨城購物中心",
+      address= "新竹市東區中央路229號",
+      latitude= 24.80999999772194, 
+      longitude= 120.97512992065664
+    )
+    line_bot_api.reply_message(event.reply_token, location_message)
+  elif re.match('回覆圖片',message):
+    image_message = ImageSendMessage(
+original_content_url='https://media.nownews.com/nn_media/thumbnail/2019/10/1570089924-27a9b9c9d7facd3422fe4610dd8ebe42-696x386.png',
+    preview_image_url='https://media.nownews.com/nn_media/thumbnail/2019/10/1570089924-27a9b9c9d7facd3422fe4610dd8ebe42-696x386.png'
+    )
+    line_bot_api.reply_message(event.reply_token, image_message)
+  elif re.match('回覆影片',message):
+    video_message = VideoSendMessage(
+      original_content_url='https://i.imgur.com/XVmZmIE.mp4',
+      preview_image_url='https://img.ttshow.tw/images/media/frontcover/2020/08/06/6.jpg'
+    )
+    line_bot_api.reply_message(event.reply_token, video_message)
+  elif re.match('回覆音檔',message):
+    audio_message = AudioSendMessage(
+      original_content_url='https://cdn.voicetube.com/everyday_records/5664/1626443219.mp3',
+      duration=30000
+    )
+    line_bot_api.reply_message(event.reply_token, audio_message)
+    
+  if "股票" in message:
+    buttons_template_message = TemplateSendMessage(
+    alt_text = "股票資訊",
+    template=CarouselTemplate( 
+    columns=[
+      CarouselColumn( 
+        thumbnail_image_url ="https://img.onl/0cAKyJ",
+        title = message[3:] + " 股票資訊", 
+        text ="請點選想查詢的股票資訊", 
+        actions =[
+          MessageAction( 
+            label= message[3:] + " 個股資訊",
+            text= "個股資訊 " + message[3:]),
+          MessageAction( 
+            label= message[3:] + " 個股新聞",
+            text= "個股新聞 " + message[3:]),
+        ]
+      ),
+      CarouselColumn( 
+          thumbnail_image_url ="https://img.onl/0cAKyJ",
+          title = message[3:] + " 股票資訊", 
+          text ="請點選想查詢的股票資訊", 
+          actions =[
+              MessageAction( 
+                  label= message[3:] + " 最新分鐘圖",
+                  text= "最新分鐘圖 " + message[3:]), 
+              MessageAction( 
+                  label= message[3:] + " 日線圖",
+                  text= "日線圖 " + message[3:]),  
+          ]
+      ),
+      CarouselColumn( 
+          thumbnail_image_url ="https://img.onl/0cAKyJ",
+          title = message[3:] + " 股利資訊", 
+          text ="請點選想查詢的股票資訊", 
+          actions =[
+              MessageAction( 
+                  label= message[3:] + " 平均股利",
+                  text= "平均股利 " + message[3:]),
+              MessageAction( 
+                  label= message[3:] + " 歷年股利",
+                  text= "歷年股利 " + message[3:])
+          ]
+      ),                               
+    ]
+    ) 
+)
+    line_bot_api.reply_message(event.reply_token, buttons_template_message)
+     
   else:
     line_bot_api.reply_message(event.reply_token, TextSendMessage(message))
 
