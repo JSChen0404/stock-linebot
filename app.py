@@ -12,6 +12,7 @@ handler = WebhookHandler(os.getenv('LINE_CHANNEL_SECRET'))
 line_bot_api.push_message(os.getenv('YOUR_USER_ID'),
                           TextSendMessage(text='你可以開始了'))
 
+
 # 監聽所有來自 /callback 的 Post Request
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -38,11 +39,14 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
   message = TextSendMessage(text=event.message.text)
-  line_bot_api.reply_message(event.reply_token, message)
+  #line_bot_api.reply_message(event.reply_token, message)
+  if re.match("你是誰", message):
+    line_bot_api.reply_message(event.reply_token, TextSendMessage("才不告訴你勒~~"))
+  else:
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(message))
 
 
 # 主程式
 if __name__ == "__main__":
   port = int(os.environ.get('PORT', 5000))
   app.run(host='0.0.0.0', port=port)
-
