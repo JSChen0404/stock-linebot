@@ -3,6 +3,7 @@ from flask import Flask, request, abort
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
+from realtime_stock import get_realtime_quote, ten_years_price
 
 app = Flask(__name__)
 
@@ -75,57 +76,66 @@ original_content_url='https://media.nownews.com/nn_media/thumbnail/2019/10/15700
       duration=30000
     )
     line_bot_api.reply_message(event.reply_token, audio_message)
-    
-  if "股票" in message:
-    buttons_template_message = TemplateSendMessage(
-    alt_text = "股票資訊",
-    template=CarouselTemplate( 
-    columns=[
-      CarouselColumn( 
-        thumbnail_image_url ="https://img.onl/0cAKyJ",
-        title = message[3:] + " 股票資訊", 
-        text ="請點選想查詢的股票資訊", 
-        actions =[
-          MessageAction( 
-            label= message[3:] + " 個股資訊",
-            text= "個股資訊 " + message[3:]),
-          MessageAction( 
-            label= message[3:] + " 個股新聞",
-            text= "個股新聞 " + message[3:]),
-        ]
-      ),
-      CarouselColumn( 
-          thumbnail_image_url ="https://img.onl/0cAKyJ",
-          title = message[3:] + " 股票資訊", 
-          text ="請點選想查詢的股票資訊", 
-          actions =[
-              MessageAction( 
-                  label= message[3:] + " 最新分鐘圖",
-                  text= "最新分鐘圖 " + message[3:]), 
-              MessageAction( 
-                  label= message[3:] + " 日線圖",
-                  text= "日線圖 " + message[3:]),  
-          ]
-      ),
-      CarouselColumn( 
-          thumbnail_image_url ="https://img.onl/0cAKyJ",
-          title = message[3:] + " 股利資訊", 
-          text ="請點選想查詢的股票資訊", 
-          actions =[
-              MessageAction( 
-                  label= message[3:] + " 平均股利",
-                  text= "平均股利 " + message[3:]),
-              MessageAction( 
-                  label= message[3:] + " 歷年股利",
-                  text= "歷年股利 " + message[3:])
-          ]
-      ),                               
-    ]
-    ) 
-)
-    line_bot_api.reply_message(event.reply_token, buttons_template_message)
-     
-  else:
+# 按鈕樣板
+#   if "股票" in message:
+#     buttons_template_message = TemplateSendMessage(
+#     alt_text = "股票資訊",
+#     template=CarouselTemplate( 
+#     columns=[
+#       CarouselColumn( 
+#         thumbnail_image_url ="https://img.onl/0cAKyJ",
+#         title = message[3:] + " 股票資訊", 
+#         text ="請點選想查詢的股票資訊", 
+#         actions =[
+#           MessageAction( 
+#             label= message[3:] + " 個股資訊",
+#             text= "個股資訊 " + message[3:]),
+#           MessageAction( 
+#             label= message[3:] + " 個股新聞",
+#             text= "個股新聞 " + message[3:]),
+#         ]
+#       ),
+#       CarouselColumn( 
+#           thumbnail_image_url ="https://img.onl/0cAKyJ",
+#           title = message[3:] + " 股票資訊", 
+#           text ="請點選想查詢的股票資訊", 
+#           actions =[
+#               MessageAction( 
+#                   label= message[3:] + " 最新分鐘圖",
+#                   text= "最新分鐘圖 " + message[3:]), 
+#               MessageAction( 
+#                   label= message[3:] + " 日線圖",
+#                   text= "日線圖 " + message[3:]),  
+#           ]
+#       ),
+#       CarouselColumn( 
+#           thumbnail_image_url ="https://img.onl/0cAKyJ",
+#           title = message[3:] + " 股利資訊", 
+#           text ="請點選想查詢的股票資訊", 
+#           actions =[
+#               MessageAction( 
+#                   label= message[3:] + " 平均股利",
+#                   text= "平均股利 " + message[3:]),
+#               MessageAction( 
+#                   label= message[3:] + " 歷年股利",
+#                   text= "歷年股利 " + message[3:])
+#           ]
+#       ),                               
+#     ]
+#     ) 
+# )
+#     line_bot_api.reply_message(event.reply_token, buttons_template_message)
+
+# 快速回覆
+  if '#' in message:
+    flex_message = TextSendMessage(text="請選擇要顯示的資訊", 
+                   quick_reply=QuickReply(items=[
+                   QuickReplyButton(action=MessageAction(label="即時股價", text="即時股價: "+get_realtime_quote(message[1:]))),
+                   QuickReplyButton(action=MessageAction(label="五日均價", text="五日均價")), 
+                   QuickReplyButton(action=MessageAction(label="五年均價", text="五年均價")),
+                   QuickReplyButton(action=MessageAction(label="十年均價", text="十年均價: "+ten_years_price(message[1:])))                                  ]))
+    line_bot_api.reply_message(event.reply_token, flex_message)
+  else: #回傳一模一樣的句子
     line_bot_api.reply_message(event.reply_token, TextSendMessage(message))
 
 
