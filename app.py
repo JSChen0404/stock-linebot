@@ -3,7 +3,7 @@ from flask import Flask, request, abort
 from linebot import (LineBotApi, WebhookHandler)
 from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import *
-from realtime_stock import get_realtime_quote, ten_years_price
+from realtime_stock import get_realtime_quote, retro_price
 
 app = Flask(__name__)
 
@@ -131,9 +131,11 @@ original_content_url='https://media.nownews.com/nn_media/thumbnail/2019/10/15700
     flex_message = TextSendMessage(text="請選擇要顯示的資訊", 
                    quick_reply=QuickReply(items=[
                    QuickReplyButton(action=MessageAction(label="即時股價", text="即時股價: "+get_realtime_quote(message[1:]))),
-                   QuickReplyButton(action=MessageAction(label="五日均價", text="五日均價")), 
-                   QuickReplyButton(action=MessageAction(label="五年均價", text="五年均價")),
-                   QuickReplyButton(action=MessageAction(label="十年均價", text="十年均價: "+ten_years_price(message[1:])))                                  ]))
+                   QuickReplyButton(action=MessageAction(label="5日均價", text="5日均價: " + retro_price(message[1:],5))), 
+                   QuickReplyButton(action=MessageAction(label="20日均價", text="20日均價: " + retro_price(message[1:],20))),
+                   QuickReplyButton(action=MessageAction(label="60日均價", text="60日均價: " + retro_price(message[1:],60))), 
+                   QuickReplyButton(action=MessageAction(label="1年均價", text="1年均價: " + retro_price(message[1:],365))),
+                   QuickReplyButton(action=MessageAction(label="3年均價", text="3年均價: " + retro_price(message[1:],1095)))                           ]))
     line_bot_api.reply_message(event.reply_token, flex_message)
   else: #回傳一模一樣的句子
     line_bot_api.reply_message(event.reply_token, TextSendMessage(message))

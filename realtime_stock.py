@@ -23,8 +23,8 @@ def get_realtime_quote(stockNo, ex='tse'):
     
 
 
-def ten_years_price(stock_num): 
-    assign_date = date.today() - timedelta(days = 3650) 
+def retro_price(stock_num, retro_days): 
+    assign_date = date.today() - timedelta(days = retro_days) 
     stock = yf.Ticker(stock_num + '.TW')
     stock_data = stock.history(start=assign_date)
     stock_data2 = stock_data.reset_index( )[['Date', 'Close']] 
