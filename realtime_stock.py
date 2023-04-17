@@ -17,7 +17,7 @@ def get_realtime_quote(stockNo, ex='tse'):
 
     r = req.get(STOCKINFO_URL.format(stock_id=stock_id, time=int(time.time()) * 1000))
     try:
-        return str(round(float(r.json()['msgArray'][0]['pz']),2))
+        return str(round(float(r.json()['msgArray'][0]['y']),2))
     except json.decoder.JSONDecodeError:
         return {'rtmessage': 'json decode error', 'rtcode': '5000'}
     
